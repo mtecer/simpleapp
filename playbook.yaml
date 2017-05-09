@@ -1,0 +1,66 @@
+- hosts: all
+  become: true
+  become_user: root
+  tasks:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+    - name: Disable IPTables
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      with_items:
+        - firewalld
+    - name: Install MongoDB
+      package:
+        name:   "{{ item }}"
+        state:  present
+      with_items:
+        - mongodb
+        - mongodb-server
+    - name: Enable MongoDB service
+      service:
+        name: mongod
+        state: running
+        enabled: yes
+    - name: Install pip
+      package:
+        name:   "{{ item }}"
+        state:  present
+      with_items:
+        - python2-pip
+    - name: Install simpleapp requirements
+      pip:
+        requirements: /usr/local/python/simpleapp/requirements.txt
+    - name: Install Apache
+      package:
+        name:   "{{ item }}"
+        state:  present
+      with_items:
+        - httpd
+        - mod_wsgi
+    - name: Enable Apache service
+      service:
+        name: httpd
+        state: running
+        enabled: yes
+    - name: Copy WSGI configuration
+      copy:
+        src:  "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+        remote_src: true
+      with_items:
+        - { src: '/usr/local/python/simpleapp/simpleapp.conf', dest: '/etc/httpd/conf.d/simpleapp.conf' }
+        - { src: '/usr/local/python/simpleapp/00-mpm.conf', dest: '/etc/httpd/conf.modules.d/00-mpm.conf' }
+        - { src: '/usr/local/python/simpleapp/10-worker.conf', dest: '/etc/httpd/conf.modules.d/10-worker.conf' }
+      notify: Restart Apache service
+  handlers:
+    - name: Restart Apache service
+      service:
+        name: httpd
+        state: restarted
+
