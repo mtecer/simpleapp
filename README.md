@@ -7,8 +7,10 @@ git clone https://github.com/mtecer/simpleapp.git
 ```
 
 # Deployment
-Part of the installation is Vagrant triggering ansible to deploy mongodb and simpleapp as a wsgi application on Apache.
-For more information review resulting configuration in /etc/httpd/conf.d
+Vagrant triggers an ansible run to configure this server.
+Ansible deploys mongodb service, and also deploys simpleapp as a wsgi application on Apache.
+Python library requirements are installed as part of ansible run.
+For more information review resulting configuration in /etc/httpd.
 ```shell
 cd simpleapp
 vagrant up
