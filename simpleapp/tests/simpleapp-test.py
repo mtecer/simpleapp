@@ -1,8 +1,11 @@
+import json
+import sys
+import unittest
+
+sys.path.insert(0, '/usr/local/python/simpleapp')
+
 from pymongo import MongoClient
 from simpleapp import app
-
-import json
-import unittest
 
 get_route_params = 'uid=3&date=2017-05-08'
 nonexisting_record = 'uid=2&date=2015-05-13'
